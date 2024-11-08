@@ -27,6 +27,7 @@ def solve_nqueens(N, board, row):
 
 
 def nqueens(N):
+    "N Queens"
     if len(sys.argv) != 2:
         print("Usage: nqueens N")
         sys.exit(1)
