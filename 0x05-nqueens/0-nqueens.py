@@ -1,68 +1,91 @@
 #!/usr/bin/python3
-"""
-Solution to the nqueens problem
-"""
+"N queens"
 import sys
 
 
-def backtrack(r, n, cols, pos, neg, board):
+def is_safe(board, row, col, N):
     """
-    backtrack function to find solution
+    Check if it is safe to place a queen at position (row, col).
+    
+    Args:
+        board (list): A list representing the positions of queens on the board.
+        row (int): The row to place the queen.
+        col (int): The column to place the queen.
+        N (int): The size of the chessboard.
+
+    Returns:
+        bool: True if the position is safe, False otherwise.
     """
-    if r == n:
-        res = []
-        for l in range(len(board)):
-            for k in range(len(board[l])):
-                if board[l][k] == 1:
-                    res.append([l, k])
-        print(res)
+    # Check for queens in the same column
+    for i in range(row):
+        if board[i][1] == col:
+            return False
+
+    # Check for queens in the same diagonal
+    for i in range(row):
+        if abs(board[i][0] - row) == abs(board[i][1] - col):
+            return False
+
+    return True
+
+
+def solve_nqueens(N, board, row):
+    """
+    Solve the N-Queens puzzle using backtracking.
+    
+    Args:
+        N (int): The size of the chessboard and the number of queens.
+        board (list): A list to store the positions of queens.
+        row (int): The current row to place the queen.
+    
+    Returns:
+        None
+    """
+    # If all queens are placed, print the solution
+    if row == N:
+        print(board)
         return
 
-    for c in range(n):
-        if c in cols or (r + c) in pos or (r - c) in neg:
-            continue
-
-        cols.add(c)
-        pos.add(r + c)
-        neg.add(r - c)
-        board[r][c] = 1
-
-        backtrack(r+1, n, cols, pos, neg, board)
-
-        cols.remove(c)
-        pos.remove(r + c)
-        neg.remove(r - c)
-        board[r][c] = 0
+    # Try placing the queen in all columns of the current row
+    for col in range(N):
+        if is_safe(board, row, col, N):
+            board.append([row, col])  # Place the queen
+            solve_nqueens(N, board, row + 1)  # Try placing queens in the next row
+            board.pop()  # Backtrack
 
 
-def nqueens(n):
+def nqueens(N):
     """
-    Solution to nqueens problem
+    Check if the user input is valid and solve the N-Queens puzzle.
+    
     Args:
-        n (int): number of queens. Must be >= 4
-    Return:
-        List of lists representing coordinates of each
-        queen for all possible solutions
+        N (int): The size of the chessboard and the number of queens.
+    
+    Returns:
+        None
     """
-    cols = set()
-    pos_diag = set()
-    neg_diag = set()
-    board = [[0] * n for i in range(n)]
-
-    backtrack(0, n, cols, pos_diag, neg_diag, board)
-
-
-if __name__ == "__main__":
-    n = sys.argv
-    if len(n) != 2:
+    # Check if the correct number of arguments is passed
+    if len(sys.argv) != 2:
         print("Usage: nqueens N")
         sys.exit(1)
+
     try:
-        nn = int(n[1])
-        if nn < 4:
-            print("N must be at least 4")
-            sys.exit(1)
-        nqueens(nn)
+        N = int(sys.argv[1])
     except ValueError:
         print("N must be a number")
         sys.exit(1)
+
+    if N < 4:
+        print("N must be at least 4")
+        sys.exit(1)
+
+    board = []  # This list will store the positions of queens
+    solve_nqueens(N, board, 0)
+
+
+if __name__ == '__main__':
+    """
+    Main function to execute the program.
+    """
+    nqueens(4)  # For testing, you can pass the size of the board, e.g., nqueens(4)
+
