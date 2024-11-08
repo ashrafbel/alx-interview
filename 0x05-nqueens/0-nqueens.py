@@ -1,103 +1,68 @@
-#!/usr/bin/env python3
-"N queens"
+#!/usr/bin/python3
+"""
+Solution to the nqueens problem
+"""
 import sys
 
-def is_safe(board, row, col, n):
+
+def backtrack(r, n, cols, pos, neg, board):
     """
-    Check if a queen can be placed on board[row][col]
-    
+    backtrack function to find solution
+    """
+    if r == n:
+        res = []
+        for l in range(len(board)):
+            for k in range(len(board[l])):
+                if board[l][k] == 1:
+                    res.append([l, k])
+        print(res)
+        return
+
+    for c in range(n):
+        if c in cols or (r + c) in pos or (r - c) in neg:
+            continue
+
+        cols.add(c)
+        pos.add(r + c)
+        neg.add(r - c)
+        board[r][c] = 1
+
+        backtrack(r+1, n, cols, pos, neg, board)
+
+        cols.remove(c)
+        pos.remove(r + c)
+        neg.remove(r - c)
+        board[r][c] = 0
+
+
+def nqueens(n):
+    """
+    Solution to nqueens problem
     Args:
-        board: 2D list representing the board
-        row: Current row to check
-        col: Current column to check
-        n: Size of the board
-    
-    Returns:
-        Boolean indicating if the position is safe
+        n (int): number of queens. Must be >= 4
+    Return:
+        List of lists representing coordinates of each
+        queen for all possible solutions
     """
-    # Check this row on left side
-    for j in range(col):
-        if board[row][j] == 1:
-            return False
-    
-    # Check upper diagonal on left side
-    for i, j in zip(range(row, -1, -1), range(col, -1, -1)):
-        if board[i][j] == 1:
-            return False
-    
-    # Check lower diagonal on left side
-    for i, j in zip(range(row, n, 1), range(col, -1, -1)):
-        if board[i][j] == 1:
-            return False
-    
-    return True
+    cols = set()
+    pos_diag = set()
+    neg_diag = set()
+    board = [[0] * n for i in range(n)]
 
-def solve_nqueens(n):
-    """
-    Solve the N Queens problem and return all solutions
-    
-    Args:
-        n: Size of the board
-    
-    Returns:
-        List of solutions, where each solution is a list of queen positions
-    """
-    def solve_util(board, col):
-        # Base case: If all queens are placed, return True
-        if col >= n:
-            solution = []
-            for i in range(n):
-                for j in range(n):
-                    if board[i][j] == 1:
-                        solution.append([i, j])
-            solutions.append(solution)
-            return
-        
-        # Consider this column and try placing this queen in all rows one by one
-        for i in range(n):
-            if is_safe(board, i, col, n):
-                # Place this queen in board[i][col]
-                board[i][col] = 1
-                
-                # Recur to place rest of the queens
-                solve_util(board, col + 1)
-                
-                # If placing queen in board[i][col] doesn't lead to a solution,
-                # then remove queen from board[i][col]
-                board[i][col] = 0
+    backtrack(0, n, cols, pos_diag, neg_diag, board)
 
-    # Initialize the solutions list
-    solutions = []
-    
-    # Initialize the chessboard
-    board = [[0 for x in range(n)] for y in range(n)]
-    
-    # Start from the first column
-    solve_util(board, 0)
-    
-    return solutions
 
-def main():
-    """Main function to handle input and print solutions"""
-    # Check number of arguments
-    if len(sys.argv) != 2:
+if __name__ == "__main__":
+    n = sys.argv
+    if len(n) != 2:
         print("Usage: nqueens N")
         sys.exit(1)
-    
     try:
-        n = int(sys.argv[1])
+        nn = int(n[1])
+        if nn < 4:
+            print("N must be at least 4")
+            sys.exit(1)
+        nqueens(nn)
     except ValueError:
         print("N must be a number")
         sys.exit(1)
-    
-    if n < 4:
-        print("N must be at least 4")
-        sys.exit(1)
-    
-    # Get and print solutions
-    solutions = solve_nqueens(n)
-    for solution in solutions:
-        print(solution)
-
-if __name__ == "__main__":
-    main()
