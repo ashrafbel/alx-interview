@@ -44,4 +44,4 @@ def nqueens(N):
 
 
 if __name__ == '__main__':
-    nqueens(4)
+    nqueens()
