@@ -1,28 +1,27 @@
-#!/usr/bin/env node
+#!/usr/bin/node
 
 const request = require('request');
-const movieId = process.argv[2];
-const url = `https://swapi.dev/api/films/${movieId}/`;
 
-request(url, (error, response, body) => {
-  if (error) {
-    console.error('Error:', error);
-    return;
+const req = (arr, i) => {
+  if (i === arr.length) return;
+  request(arr[i], (err, response, body) => {
+    if (err) {
+      throw err;
+    } else {
+      console.log(JSON.parse(body).name);
+      req(arr, i + 1);
+    }
+  });
+};
+
+request(
+  `https://swapi-api.hbtn.io/api/films/${process.argv[2]}`,
+  (err, response, body) => {
+    if (err) {
+      throw err;
+    } else {
+      const chars = JSON.parse(body).characters;
+      req(chars, 0);
+    }
   }
-
-  if (response.statusCode === 200) {
-    const film = JSON.parse(body);
-    const characters = film.characters;
-
-    characters.forEach((characterUrl) => {
-      request(characterUrl, (err, resp, charBody) => {
-        if (!err && resp.statusCode === 200) {
-          const character = JSON.parse(charBody);
-          console.log(character.name);
-        }
-      });
-    });
-  } else {
-    console.error(`Failed to retrieve film with ID ${movieId}. Status code: ${response.statusCode}`);
-  }
-});
+);
